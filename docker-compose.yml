@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # OpenVPN server
+  openvpn:
+    image: kylemanna/openvpn
+    container_name: openvpn-server
+    volumes:
+      - ./vpn/openvpn:/etc/openvpn
+    environment:
+      - DOMAIN=vpn.open.${BASE_DOMAIN}
+    ports:
+      - "1194:1194/udp"  # OpenVPN port
+    cap_add:
+      - NET_ADMIN
+    restart: always
+
+  # WireGuard serve
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: wireguard-server
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - ./vpn/wireguard:/config
+    environment:
+      - SERVERURL=vpn.wg.${BASE_DOMAIN}
+      - PEERS=5 # Количество клиентов
+    ports:
+      - "51820:51820/udp"  # Порт WireGuard
+    sysctls:
+      - net.ipv4.conf.all.forwarding=1
+      - net.ipv6.conf.all.forwarding=1
+    restart: always
+
+  # UI for OpenVPN
+  openvpn-admin:
+    image: ghcr.io/dswd/vpn-admin:latest
+    container_name: openvpn-admin
+    environment:
+      - ADMIN_DOMAIN=admin.open.${BASE_DOMAIN}
+      - VPN_CONFIG_PATH=/etc/openvpn
+    volumes:
+      - ./vpn/openvpn:/etc/openvpn
+    restart: always
+    depends_on:
+      - openvpn
+
+  # UI for WireGuard
+  wireguard-ui:
+    image: ngoduykhanh/wireguard-ui:latest
+    container_name: wireguard-admin
+    environment:
+      - WGUI_SERVER_HOST=admin.wg.${BASE_DOMAIN}
+    volumes:
+      - ./vpn/wireguard:/etc/wireguard
+    ports:
+      - "5000:5000"  # Admin WireGuard port (local)
+    restart: always
+    depends_on:
+      - wireguard
+
+  # Traefik for domain control
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    command:
+      - "--api=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.wireguardui.address=:5000" # WireGuard UI отдельный порт
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./traefik:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      # OpenVPN routing
+      - "traefik.http.routers.openvpn.rule=Host(`vpn.open.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.openvpn.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.openvpn.service=openvpn"
+      - "traefik.http.routers.openvpn-admin.rule=Host(`admin.open.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.openvpn-admin.tls.certresolver=letsencrypt"
+
+      # WireGuard routing
+      - "traefik.http.routers.wireguard.rule=Host(`vpn.wg.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.wireguard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wireguard-admin.rule=Host(`admin.wg.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.wireguard-admin.tls.certresolver=letsencrypt"
+    restart: always
+
+networks:
+  default:
+    name: vpn_network
