@@ -28,8 +28,8 @@ docker-compose --version
 
 #### 2.1. Клонируйте репозиторий:
 ```bash
-git clone <repository_url>
-cd <project_directory>
+git clone https://github.com/Deusilla/DoubleVpnServer.git
+cd https://github.com/Deusilla/DoubleVpnServer.git
 ```
 
 #### 2.2. Создайте `.env.local` файл:
