@@ -38,7 +38,7 @@ endif
 		exit 1; \
 	fi
 	@if [ ! -f $(ENV_FILE) ]; then \
-		echo "BASE_DOMAIN=$(domain)" > $(ENV_FILE); \
+		echo "DOMAIN=$(domain)" > $(ENV_FILE); \
 		echo "LETSENCRYPT_EMAIL=$(email)" >> $(ENV_FILE); \
 		echo ".env.local created successfully (Файл .env.local успешно создан)"; \
 	else \
@@ -47,7 +47,7 @@ endif
 
 # OpenVPN commands (Команды для OpenVPN)
 init-openvpn: ## Initialize OpenVPN configuration (Инициализировать конфигурацию OpenVPN)
-	@docker run --rm -v $(PWD)/vpn/openvpn:/etc/openvpn kylemanna/openvpn ovpn_genconfig -u udp://vpn.open.$(shell grep BASE_DOMAIN $(ENV_FILE) | cut -d '=' -f2)
+	@docker run --rm -v $(PWD)/vpn/openvpn:/etc/openvpn kylemanna/openvpn ovpn_genconfig -u udp://vpn.open.$(shell grep DOMAIN $(ENV_FILE) | cut -d '=' -f2)
 	@docker run --rm -v $(PWD)/vpn/openvpn:/etc/openvpn -it kylemanna/openvpn ovpn_initpki
 
 add-openvpn-client: ## Add a new OpenVPN client (Добавить нового клиента OpenVPN)

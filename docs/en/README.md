@@ -29,7 +29,7 @@ docker-compose --version
 #### 2.1. Clone the repository:
 ```bash
 git clone https://github.com/Deusilla/DoubleVpnServer.git
-cd https://github.com/Deusilla/DoubleVpnServer.git
+cd DoubleVpnServer
 ```
 
 #### 2.2. Generate the `.env.local` file:
