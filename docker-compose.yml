@@ -18,6 +18,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"  # Traefik Dashboard (Панель управления Traefik)
+    env_file:
+      - .env.local  # Load environment variables from .env.local (Загружаем переменные окружения из .env.local)
 
   # OpenVPN service (Сервис OpenVPN)
   openvpn:
@@ -37,6 +39,8 @@ services:
       - "traefik.http.routers.openvpn.rule=Host(`vpn.open.${DOMAIN}`)"  # OpenVPN service domain (Домен для сервиса OpenVPN)
     depends_on:
       - traefik  # OpenVPN depends on Traefik (OpenVPN зависит от Traefik)
+    env_file:
+      - .env.local  # Load environment variables from .env.local (Загружаем переменные окружения из .env.local)
 
   # WireGuard service (Сервис WireGuard)
   wireguard:
@@ -57,6 +61,8 @@ services:
       - "traefik.http.routers.wireguard.rule=Host(`vpn.wg.${DOMAIN}`)"  # WireGuard service domain (Домен для сервиса WireGuard)
     depends_on:
       - traefik  # WireGuard depends on Traefik (WireGuard зависит от Traefik)
+    env_file:
+      - .env.local  # Load environment variables from .env.local (Загружаем переменные окружения из .env.local)
 
   # Admin panel for OpenVPN (Административная панель для OpenVPN)
   openvpn-admin:
@@ -78,6 +84,8 @@ services:
     depends_on:
       - openvpn  # Admin panel depends on OpenVPN service (Панель администратора зависит от сервиса OpenVPN)
       - traefik  # Admin panel depends on Traefik (Панель администратора зависит от Traefik)
+    env_file:
+      - .env.local  # Load environment variables from .env.local (Загружаем переменные окружения из .env.local)
 
   # Admin panel for WireGuard (Административная панель для WireGuard)
   wireguard-admin:
@@ -99,6 +107,8 @@ services:
     depends_on:
       - wireguard  # Admin panel depends on WireGuard service (Панель администратора зависит от сервиса WireGuard)
       - traefik  # Admin panel depends on Traefik (Панель администратора зависит от Traefik)
+    env_file:
+      - .env.local  # Load environment variables from .env.local (Загружаем переменные окружения из .env.local)
 
 networks:
   vpn_network:  # VPN network (Сеть для VPN)
