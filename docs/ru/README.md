@@ -33,11 +33,12 @@ cd <project_directory>
 ```
 
 #### 2.2. Создайте `.env.local` файл:
-
-```dotenv
-BASE_DOMAIN=example.com
-LETSENCRYPT_EMAIL=your-email@example.com
-```
+- Этот файл содержит домен и email для генерации SSL-сертификата и других настроек.
+- Создайте файл с помощью следующей команды:
+  ```bash
+  make generate-env domain=example.com email=your-email@example.com
+  ```
+  Это создаст файл .env.local с переданными значениями домена и email. Команда также выполнит валидацию формата домена и email.
 
 #### 2.3. Инициализируйте конфигурации VPN:
 

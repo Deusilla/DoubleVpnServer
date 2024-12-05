@@ -32,12 +32,13 @@ git clone <repository_url>
 cd <project_directory>
 ```
 
-#### 2.2. Create the `.env.local` file:
-
-```dotenv
-BASE_DOMAIN=example.com
-LETSENCRYPT_EMAIL=your-email@example.com
-```
+#### 2.2. Generate the `.env.local` file:
+- This file contains the domain and email for SSL certificate generation and other configurations.
+- You can create it by running the following command:
+  ```bash
+  make generate-env domain=example.com email=your-email@example.com
+  ```
+  This will create a `.env.local` file with the provided domain and email. The command also validates the domain and email formats.
 
 #### 2.3. Initialize VPN configurations:
 
